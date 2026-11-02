@@ -11,7 +11,6 @@ import Security from './pages/Security';
 import ThemeManager from './components/common/ThemeManager';
 import ZoomManager from './components/common/ZoomManager';
 import UserToken from './pages/UserToken';
-import { ApiKeyFun } from './pages/ApiKeyFun';
 import { UpdateNotification } from './components/UpdateNotification';
 import SuggestionDeleteThinkingModal from './components/common/SuggestionDeleteThinkingModal';
 import DebugConsole from './components/debug/DebugConsole';
@@ -67,7 +66,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'apikey-fun',
-        element: <ApiKeyFun />,
+        element: <Navigate to="/" replace />,
       },
       {
         path: 'security',
