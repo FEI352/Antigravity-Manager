@@ -1,0 +1,68 @@
+name: Upstream Sync & Auto Clean
+
+on:
+  schedule:
+    # 03:30 AM SGT (19:30 UTC), 1 hour before Hermes 04:35 AM cron
+    - cron: '30 19 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check-and-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/lbjlaq/Antigravity-Manager.git || true
+          git fetch upstream --tags
+
+      - name: Check for newer upstream release
+        id: sync_check
+        run: |
+          UPSTREAM_TAG=$(curl -s "https://api.github.com/repos/lbjlaq/Antigravity-Manager/releases" | jq -r '.[0].tag_name')
+          echo "Upstream latest tag: $UPSTREAM_TAG"
+          
+          if [ -z "$UPSTREAM_TAG" ] || [ "$UPSTREAM_TAG" = "null" ]; then
+            echo "Failed to fetch upstream release tag."
+            exit 0
+          fi
+          
+          # Check if tag already exists in our repo
+          if git rev-parse "$UPSTREAM_TAG" >/dev/null 2>&1 || git rev-parse "${UPSTREAM_TAG}-clean" >/dev/null 2>&1; then
+            echo "Already up-to-date with upstream tag $UPSTREAM_TAG."
+            echo "has_update=false" >> $GITHUB_OUTPUT
+          else
+            echo "New upstream release detected: $UPSTREAM_TAG"
+            echo "has_update=true" >> $GITHUB_OUTPUT
+            echo "tag=$UPSTREAM_TAG" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Merge Upstream, Strip Promo, and Push
+        if: steps.sync_check.outputs.has_update == 'true'
+        run: |
+          TAG="${{ steps.sync_check.outputs.tag }}"
+          echo "Merging upstream tag $TAG..."
+          git merge -X theirs "$TAG" --no-edit -m "chore(sync): merge upstream $TAG" || true
+
+          # Apply clean strip patch
+          python3 scripts/strip-apikey-fun.py
+
+          # Check if any changes
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "chore(clean): strip apikey-fun promotional routes for $TAG"
+          fi
+
+          # Tag and push
+          git tag -a "${TAG}-clean" -m "Clean build for $TAG without promotional routes"
+          git push origin main --tags
