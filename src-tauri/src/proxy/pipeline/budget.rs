@@ -32,13 +32,16 @@ pub const MIN_ATTEMPT_BUDGET_SECS: u64 = 5;
 
 /// 认定为“大 body”的重放护栏阈值（字节）
 ///
-/// 256KB ≈ 73K token。低于它的重传代价可接受，不启用次数上限。
-pub const REPLAY_GUARD_BODY_BYTES: usize = 256 * 1024;
+/// 4MB ≈ 1M token 文本或大型多模态请求。低于它的常规长文本长上下文（例如 900KB~2MB）
+/// 在遭遇上游偶发超时或瞬态限流时，允许正常跨账号轮换容灾；
+/// 高于 4MB 的巨型报文（如高分辨率视频/巨幅多图）则受严格的调用次数护栏保护。
+pub const REPLAY_GUARD_BODY_BYTES: usize = 4 * 1024 * 1024;
 
 /// 大 body 在**同一个客户端请求内**允许的上游调用次数上限（含首次）
 ///
-/// 超过即视为“跨账号重放放大”，直接终态失败，交由客户端决定是否重试。
-pub const MAX_LARGE_BODY_UPSTREAM_CALLS: usize = 2;
+/// 允许最多 3 次尝试（含首选账号与 2 次跨账号故障转移）。超过即视为“跨账号重放放大”，
+/// 直接终态失败，交由客户端决定是否重试。
+pub const MAX_LARGE_BODY_UPSTREAM_CALLS: usize = 3;
 
 task_local! {
     /// 当前请求的上下文（仅由请求入口中间件注入）
@@ -196,6 +199,16 @@ pub fn estimated_tokens() -> Option<u32> {
     })
 }
 
+/// 读取当前生效的大 body 判定门限（优先遵从用户在 GUI 配置的 large_body_threshold_mb，默认保底 4MB）
+pub fn replay_guard_threshold_bytes() -> usize {
+    let cfg_bytes = crate::proxy::get_upload_timeout_config().large_body_threshold_bytes();
+    if cfg_bytes > 0 {
+        cfg_bytes
+    } else {
+        REPLAY_GUARD_BODY_BYTES
+    }
+}
+
 /// 登记一次上游调用，并在“大 body + 超出重放上限”时拒绝
 ///
 /// 返回 `Err(已发生的调用次数)` 表示本次调用被护栏拦下。
@@ -204,7 +217,8 @@ pub fn register_upstream_call(body_len: usize) -> Result<(), usize> {
         return Ok(());
     };
     let call_no = ctx.register_upstream_call();
-    if body_len >= REPLAY_GUARD_BODY_BYTES && call_no > MAX_LARGE_BODY_UPSTREAM_CALLS {
+    let threshold = replay_guard_threshold_bytes();
+    if body_len >= threshold && call_no > MAX_LARGE_BODY_UPSTREAM_CALLS {
         return Err(call_no);
     }
     Ok(())
@@ -254,19 +268,20 @@ mod tests {
     #[tokio::test]
     async fn large_body_replay_is_capped_but_small_body_is_not() {
         scope(RequestContext::new(deadline_now()), async {
-            // 大 body：前两次放行，第三次拒绝
-            assert!(register_upstream_call(REPLAY_GUARD_BODY_BYTES).is_ok());
-            assert!(register_upstream_call(REPLAY_GUARD_BODY_BYTES).is_ok());
+            // 大 body：前 MAX_LARGE_BODY_UPSTREAM_CALLS 次放行，超额则拒绝
+            for _ in 0..MAX_LARGE_BODY_UPSTREAM_CALLS {
+                assert!(register_upstream_call(REPLAY_GUARD_BODY_BYTES).is_ok());
+            }
             assert_eq!(
                 register_upstream_call(REPLAY_GUARD_BODY_BYTES),
-                Err(3),
-                "third large-body upstream call must be blocked"
+                Err(MAX_LARGE_BODY_UPSTREAM_CALLS + 1),
+                "large-body upstream call beyond limit must be blocked"
             );
         })
         .await;
 
         scope(RequestContext::new(deadline_now()), async {
-            // 小 body：不设次数上限
+            // 小 body（如低于 4MB 的常规请求）：不设次数上限
             for _ in 0..20 {
                 assert!(register_upstream_call(1024).is_ok());
             }
@@ -277,19 +292,21 @@ mod tests {
     #[tokio::test]
     async fn fork_shares_deadline_but_resets_replay_counter() {
         // 并行子任务（如一次生成 n 张图）共享同一个截止时刻，但重放计数必须各算各的：
-        // 否则第 3 张图就会被“大 body 重放上限”误拦。
+        // 否则第 4 张图就会被“大 body 重放上限”误拦。
         let parent = RequestContext::new(deadline_now());
         let child = parent.fork();
         assert_eq!(child.deadline, parent.deadline);
 
         scope(parent, async move {
-            assert!(register_upstream_call(REPLAY_GUARD_BODY_BYTES).is_ok());
-            assert!(register_upstream_call(REPLAY_GUARD_BODY_BYTES).is_ok());
+            for _ in 0..MAX_LARGE_BODY_UPSTREAM_CALLS {
+                assert!(register_upstream_call(REPLAY_GUARD_BODY_BYTES).is_ok());
+            }
             assert!(register_upstream_call(REPLAY_GUARD_BODY_BYTES).is_err());
 
             scope(child, async {
-                assert!(register_upstream_call(REPLAY_GUARD_BODY_BYTES).is_ok());
-                assert!(register_upstream_call(REPLAY_GUARD_BODY_BYTES).is_ok());
+                for _ in 0..MAX_LARGE_BODY_UPSTREAM_CALLS {
+                    assert!(register_upstream_call(REPLAY_GUARD_BODY_BYTES).is_ok());
+                }
             })
             .await;
         })

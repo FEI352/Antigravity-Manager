@@ -46,7 +46,7 @@ function Settings() {
     const { config, loadConfig, saveConfig, updateLanguage, updateTheme } = useConfigStore();
     const { enable, disable, isEnabled } = useDebugConsole();
     const [activeTab, setActiveTab] = useState<'general' | 'account' | 'proxy' | 'advanced' | 'debug' | 'about'>('general');
-    const [appVersion, setAppVersion] = useState<string>('5.0.2-beta.9');
+    const [appVersion, setAppVersion] = useState<string>('5.0.4-beta.0');
     const [formData, setFormData] = useState<AppConfig>({
         language: 'zh',
         theme: 'system',
@@ -103,8 +103,8 @@ function Settings() {
             use_http2: true
         },
         circuit_breaker: {
-            enabled: false,
-            backoff_steps: [30, 60, 120, 300, 600]
+            enabled: true,
+            backoff_steps: [60, 300, 1800, 7200]
         },
         hidden_menu_items: [],  // 菜单显示设置：默认不隐藏任何菜单项
 

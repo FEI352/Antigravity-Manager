@@ -380,7 +380,9 @@
                 "error_no_url": "Gagal mendapatkan URL OAuth",
                 "popup_blocked": "Pop timbul disekat",
                 "manual_submitting": "Menghantar kod pengesahan...",
-                "manual_submitted": "Kod pengesahan dihantar, sedang diproses di latar belakang..."
+                "manual_submitted": "Kod pengesahan dihantar, sedang diproses di latar belakang...",
+                "enterprise_title": "Google Cloud / Vertex AI လုပ်ငန်းသုံး ခွင့်ပြုချက်",
+                "enterprise_desc": "လုပ်ငန်းသုံး ခွဲတမ်းကို ထိန်းသိမ်းပြီး Vertex AI ပရောဂျက်နှင့် ချိတ်ဆက်ရန် တရားဝင် GCP လုပ်ငန်းသုံး client ဖြင့် ခွင့်ပြုပါ"
             },
             "token": {
                 "label": "Token Muat Semula",
@@ -483,7 +485,19 @@
         "client_cli": "CLI",
         "client_cli_tooltip": "Akaun log masuk Antigravity CLI (agy) semasa",
         "switch_next_short": "Seterusnya",
-        "weekly_exhausted_tooltip": "Kuota mingguan habis, perlindungan automatik diaktifkan"
+        "weekly_exhausted_tooltip": "Kuota mingguan habis, perlindungan automatik diaktifkan",
+        "type": {
+            "personal": "ကိုယ်ပိုင်အကောင့် (Personal)",
+            "enterprise": "လုပ်ငန်းသုံး / GCP (Vertex AI)"
+        },
+        "project_id": "GCP Project ID",
+        "project_id_hint": "လုပ်ငန်း/GCP အကောင့်နှင့် ဆက်စပ်နေသော Google Cloud Project ID။ Antigravity မူရင်းအက်ပ်သည် အကောင့်ဝင်ချိန်တွင် အလိုအလျောက်ချိတ်ဆက်ပါသည် သို့မဟုတ် မူရင်းကိုသုံးပါသည်။",
+        "project_id_placeholder": "ဥပမာ: my-project-id",
+        "project_id_updated": "GCP Project ID ကို အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ",
+        "auto_fetch_project_id": "အလိုအလျောက် ရယူရန်",
+        "fetching_project_id": "ရယူနေသည်...",
+        "auto_fetch_success": "Project ID ကို အောင်မြင်စွာ ရယူနိုင်ခဲ့ပါသည်: {{projectId}}",
+        "auto_fetch_failed": "ဆက်စပ်နေသော Project ID ကို မတွေ့ရှိပါ"
     },
     "settings": {
         "save": "Simpan Tetapan",

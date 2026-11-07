@@ -403,7 +403,9 @@
                 "error_no_url": "Не удалось получить URL OAuth",
                 "popup_blocked": "Всплывающее окно заблокировано",
                 "manual_submitting": "Отправка кода авторизации...",
-                "manual_submitted": "Код авторизации отправлен, обработка в фоновом режиме..."
+                "manual_submitted": "Код авторизации отправлен, обработка в фоновом режиме...",
+                "enterprise_title": "Авторизация Google Cloud / Vertex AI",
+                "enterprise_desc": "Авторизация через официальный корпоративный клиент GCP для сохранения квоты и привязки проекта Vertex AI"
             },
             "token": {
                 "label": "Refresh Token",
@@ -485,7 +487,19 @@
         "client_cli": "CLI",
         "client_cli_tooltip": "Текущий аккаунт Antigravity CLI (agy)",
         "switch_next_short": "След.",
-        "weekly_exhausted_tooltip": "Недельная квота исчерпана, защита активирована"
+        "weekly_exhausted_tooltip": "Недельная квота исчерпана, защита активирована",
+        "type": {
+            "personal": "Личный аккаунт",
+            "enterprise": "Корпоративный / GCP (Vertex AI)"
+        },
+        "project_id": "GCP Project ID",
+        "project_id_hint": "Идентификатор проекта Google Cloud, связанный с корпоративной учетной записью/GCP. Официальный Antigravity связывает его автоматически или использует проект по умолчанию при входе.",
+        "project_id_placeholder": "например: my-project-id",
+        "project_id_updated": "GCP Project ID успешно обновлен",
+        "auto_fetch_project_id": "Автополучение",
+        "fetching_project_id": "Получение...",
+        "auto_fetch_success": "Project ID успешно получен: {{projectId}}",
+        "auto_fetch_failed": "Связанный Project ID не найден на сервере"
     },
     "settings": {
         "save": "Сохранить настройки",

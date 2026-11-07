@@ -407,7 +407,9 @@
                 "error_no_url": "Não foi possível obter a URL OAuth",
                 "popup_blocked": "Popup bloqueado",
                 "manual_submitting": "Enviando código de autorização...",
-                "manual_submitted": "Código de autorização enviado, processando em segundo plano..."
+                "manual_submitted": "Código de autorização enviado, processando em segundo plano...",
+                "enterprise_title": "Autorização corporativa Google Cloud / Vertex AI",
+                "enterprise_desc": "Autorize com o cliente corporativo oficial do GCP para manter a cota corporativa e vincular o projeto Vertex AI"
             },
             "token": {
                 "label": "Refresh Token",
@@ -489,7 +491,19 @@
         "client_cli": "CLI",
         "client_cli_tooltip": "Conta conectada no Antigravity CLI (agy)",
         "switch_next_short": "Próximo",
-        "weekly_exhausted_tooltip": "Cota semanal esgotada, proteção ativada"
+        "weekly_exhausted_tooltip": "Cota semanal esgotada, proteção ativada",
+        "type": {
+            "personal": "Conta pessoal",
+            "enterprise": "Corporativo / GCP (Vertex AI)"
+        },
+        "project_id": "GCP Project ID",
+        "project_id_hint": "ID do projeto do Google Cloud associado à conta corporativa/GCP. O Antigravity nativo o associa ou utiliza o padrão ao fazer login.",
+        "project_id_placeholder": "ex: my-project-id",
+        "project_id_updated": "GCP Project ID atualizado com sucesso",
+        "auto_fetch_project_id": "Obter automaticamente",
+        "fetching_project_id": "Obtendo...",
+        "auto_fetch_success": "Project ID obtido com sucesso: {{projectId}}",
+        "auto_fetch_failed": "Nenhum Project ID associado encontrado no upstream"
     },
     "settings": {
         "save": "Salvar Configurações",

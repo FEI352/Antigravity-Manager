@@ -403,7 +403,9 @@
                 "error_no_url": "OAuth URLを取得できませんでした",
                 "popup_blocked": "ポップアップがブロックされました",
                 "manual_submitting": "認可コードを送信中...",
-                "manual_submitted": "認可コードを送信しました。バックエンドで処理中です..."
+                "manual_submitted": "認可コードを送信しました。バックエンドで処理中です...",
+                "enterprise_title": "Google Cloud / Vertex AI 企業認証",
+                "enterprise_desc": "公式の企業向けGCP専用クライアントで認証し、企業枠のクォータを維持してVertex AIプロジェクトと連携します"
             },
             "token": {
                 "label": "リフレッシュトークン",
@@ -485,7 +487,19 @@
         "client_cli": "CLI",
         "client_cli_tooltip": "現在 Antigravity CLI (agy) にログインしているアカウント",
         "switch_next_short": "次へ",
-        "weekly_exhausted_tooltip": "週間クォータが枯渇し、自動保護が有効化されました"
+        "weekly_exhausted_tooltip": "週間クォータが枯渇し、自動保護が有効化されました",
+        "type": {
+            "personal": "個人アカウント (Personal)",
+            "enterprise": "企業 / GCP (Vertex AI)"
+        },
+        "project_id": "GCP Project ID",
+        "project_id_hint": "エンタープライズ/GCP アカウントに関連付けられた Google Cloud プロジェクト ID。公式 Antigravity はログイン時に自動関連付けまたは既定値を使用します。",
+        "project_id_placeholder": "例: my-project-id",
+        "project_id_updated": "GCP Project ID を更新しました",
+        "auto_fetch_project_id": "自動取得",
+        "fetching_project_id": "取得中...",
+        "auto_fetch_success": "Project ID を自動取得しました: {{projectId}}",
+        "auto_fetch_failed": "上流で関連付けられた Project ID が見つかりませんでした"
     },
     "settings": {
         "save": "設定を保存",

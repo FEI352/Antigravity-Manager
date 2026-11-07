@@ -410,6 +410,10 @@
             "proxy_enabled": "成功启用 {{count}} 个账号的反代功能",
             "proxy_disabled": "成功禁用 {{count}} 个账号的反代功能"
         },
+        "type": {
+            "personal": "个人账号 (Personal)",
+            "enterprise": "企业 / GCP (Vertex AI)"
+        },
         "add": {
             "title": "添加新账号",
             "tabs": {
@@ -418,6 +422,8 @@
                 "import": "从数据库导入"
             },
             "oauth": {
+                "enterprise_title": "Google Cloud / Vertex AI 企业授权",
+                "enterprise_desc": "使用官方企业 GCP 专属客户端授权，自动保留企业配额并关联 Vertex AI 项目",
                 "recommend": "推荐方式",
                 "desc": "将打开默认浏览器进行 Google 登录授权，自动获取并保存 Token。",
                 "btn_start": "开始 OAuth 授权",
@@ -499,7 +505,15 @@
             "batch_warmup_msg": "确定要为选中的 {{count}} 个账号立即触发预热吗？"
         },
         "switch_to_agy": "Switch to Antigravity CLI (agy)",
-        "switch_next_short": "切下个"
+        "switch_next_short": "切下个",
+        "project_id": "GCP Project ID",
+        "project_id_hint": "企业/GCP 账号关联的 Google Cloud 项目 ID。原生 Antigravity 在登录后会自动关联或使用缺省项目。",
+        "project_id_placeholder": "如: my-project-id",
+        "project_id_updated": "GCP Project ID 已更新",
+        "auto_fetch_project_id": "自动获取",
+        "fetching_project_id": "获取中...",
+        "auto_fetch_success": "成功自动获取 Project ID: {{projectId}}",
+        "auto_fetch_failed": "未能在上游找到关联的 Project ID"
     },
     "settings": {
         "save": "保存设置",
@@ -2405,13 +2419,14 @@
     "pedal": {
         "notice_title": "发现即将重置的 {{model}} 周配额！",
         "notice_desc": "以下账号的周配额在 24 小时内即将重置清零，可启动“蹬额度模式”全力消耗，避免额度作废：",
-        "mode_explanation": "启动后将临时挂起其他账号，优先消耗以上账号。待额度全部用完 (0%) 或官方重置后，系统将自动恢复其他账号。",
+        "mode_explanation": "启动后将优先调度并全力消耗以上账号，保留其他账号以保证会话连贯性与并发弹性。待额度全部用完 (0%) 或官方重置后，系统将自动恢复默认优先级。",
         "suppress_button": "不再提示 {{model}} 模型",
         "activate_button": "启动蹬额度模式",
         "banner_running": "🚴 蹬额度模式运行中 ({{model}})",
+        "banner_priority_badge": "最高优先级调度",
         "banner_suspended_count": "已挂起 {{count}} 个账号",
         "banner_active_count": "{{count}} 个待消耗",
-        "banner_subtext": "正在全力消耗临期配额，当目标账号配额全部降至 0% 或到达重置时间后，系统将自动恢复其他账号。",
+        "banner_subtext": "正在全力优先消耗临期配额，其他正常账号正常待命作为会话连续性与并发弹性保底。当目标账号配额全部降至 0% 或到达重置时间后，系统将自动恢复默认调度。",
         "exit_button": "手动退出并恢复"
     }
 }
