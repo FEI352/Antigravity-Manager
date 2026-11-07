@@ -72,6 +72,27 @@ jobs:
           fi
 
           # Tag and push
+      # 2026-11-07: 这个 workflow 曾连续 5 天静默失败，fork 落后 28 个提交没人知道。
+      # GitHub Actions 从 runner 发不了 SMTP（25 端口被云厂商封、我们自己的邮局 465 对外也不通），
+      # 所以走「失败即开 Issue」：GitHub 会把 Issue 通知邮件推到仓库 owner 邮箱，且 Issue 可长期追溯。
+      - name: Notify failure via issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.SYNC_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="Upstream sync failed: $(date -u +%Y-%m-%d)"
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          BODY=$(printf '上游同步工作流失败。\n\n- 时间(UTC): %s\n- 触发方式: %s\n- 运行记录: %s\n\n常见原因：上游重指同名 tag、workflow 文件推送权限、strip 脚本报错。' \
+            "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${GITHUB_EVENT_NAME}" "$RUN_URL")
+          EXISTING=$(gh issue list --repo "${GITHUB_REPOSITORY}" --state open --search "$TITLE in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --repo "${GITHUB_REPOSITORY}" --body "$BODY"
+            echo "已追加评论到 issue #$EXISTING"
+          else
+            gh issue create --repo "${GITHUB_REPOSITORY}" --title "$TITLE" --body "$BODY"
+            echo "已新建 issue: $TITLE"
+          fi
+
           git tag -f -a "${TAG}-clean" -m "Clean build for $TAG without promotional routes"
           git push origin main
           git push origin --tags --force
