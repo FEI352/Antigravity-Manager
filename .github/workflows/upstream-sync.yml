@@ -40,8 +40,11 @@ jobs:
           fi
           
           # Check if tag already exists in our repo
-          if git rev-parse "$UPSTREAM_TAG" >/dev/null 2>&1 || git rev-parse "${UPSTREAM_TAG}-clean" >/dev/null 2>&1; then
-            echo "Already up-to-date with upstream tag $UPSTREAM_TAG."
+          # 2026-11-07: 原来用本地 rev-parse 判断，但上一行刚把上游 tag fetch 进来，
+          # 本地必然存在该 tag → 永远判定"已是最新" → 第 5 步永远被跳过（实测 run 42353540513）。
+          # 改为检查**我们自己的远端**有没有对应的 -clean 产物 tag。
+          if git ls-remote --tags origin "refs/tags/${UPSTREAM_TAG}-clean" | grep -q .; then
+            echo "Already built: ${UPSTREAM_TAG}-clean exists on origin."
             echo "has_update=false" >> $GITHUB_OUTPUT
           else
             echo "New upstream release detected: $UPSTREAM_TAG"
